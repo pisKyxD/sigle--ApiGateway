@@ -11,10 +11,10 @@ import org.springframework.web.servlet.function.ServerResponse;
 @Configuration
 public class GatewayConfig {
 
-    private static final String CORE_SERVICE = "https://sigle-core-service.onrender.com";
-    private static final String LISTAS_SERVICE = "https://sigle-listas-service.onrender.com";
-    private static final String CITAS_SERVICE = "https://api-citasservice.onrender.com";
-    private static final String PACIENTES_SERVICE = "https://sigle-pacientes-service.onrender.com";
+    private static final String CORE_SERVICE = "https://sigle-coreservice.onrender.com";
+    private static final String LISTAS_SERVICE = "https://sigle-listasservice.onrender.com";
+    private static final String CITAS_SERVICE = "https://sigle-citasservice.onrender.com";
+    private static final String PACIENTES_SERVICE = "https://sigle-pacientesservice.onrender.com";
 
     @Bean
     public RouterFunction<ServerResponse> coreRoutes() {
