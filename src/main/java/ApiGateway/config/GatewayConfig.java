@@ -1,6 +1,5 @@
 package ApiGateway.config;
 
-import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
@@ -8,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
-
-import java.net.URI;
 
 @Configuration
 public class GatewayConfig {
@@ -20,34 +17,12 @@ public class GatewayConfig {
     private static final String PACIENTES_SERVICE = "https://sigle-pacientesservice.onrender.com";
 
     @Bean
-    public RouterFunction<ServerResponse> authRoutes() {
-        return GatewayRouterFunctions.route("auth-routes")
+    public RouterFunction<ServerResponse> coreRoutes() {
+        return GatewayRouterFunctions.route("core-routes")
             .route(RequestPredicates.path("/api/auth/**"), HandlerFunctions.http(CORE_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("coreCircuitBreaker", URI.create("forward:/fallback/core")))
-            .build();
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> establecimientosRoutes() {
-        return GatewayRouterFunctions.route("establecimientos-routes")
             .route(RequestPredicates.path("/api/establecimientos/**"), HandlerFunctions.http(CORE_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("coreCircuitBreaker", URI.create("forward:/fallback/core")))
-            .build();
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> notificacionesRoutes() {
-        return GatewayRouterFunctions.route("notificaciones-routes")
             .route(RequestPredicates.path("/api/notificaciones/**"), HandlerFunctions.http(CORE_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("coreCircuitBreaker", URI.create("forward:/fallback/core")))
-            .build();
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> dashboardRoutes() {
-        return GatewayRouterFunctions.route("dashboard-routes")
             .route(RequestPredicates.path("/api/dashboard/**"), HandlerFunctions.http(CORE_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("coreCircuitBreaker", URI.create("forward:/fallback/core")))
             .build();
     }
 
@@ -55,7 +30,6 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> listasRoutes() {
         return GatewayRouterFunctions.route("listas-routes")
             .route(RequestPredicates.path("/api/listas/**"), HandlerFunctions.http(LISTAS_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("listasCircuitBreaker", URI.create("forward:/fallback/listas")))
             .build();
     }
 
@@ -63,7 +37,6 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> citasRoutes() {
         return GatewayRouterFunctions.route("citas-routes")
             .route(RequestPredicates.path("/api/citas/**"), HandlerFunctions.http(CITAS_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("citasCircuitBreaker", URI.create("forward:/fallback/citas")))
             .build();
     }
 
@@ -71,7 +44,6 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> pacientesRoutes() {
         return GatewayRouterFunctions.route("pacientes-routes")
             .route(RequestPredicates.path("/api/pacientes/**"), HandlerFunctions.http(PACIENTES_SERVICE))
-            .filter(CircuitBreakerFilterFunctions.circuitBreaker("pacientesCircuitBreaker", URI.create("forward:/fallback/pacientes")))
             .build();
     }
 }
