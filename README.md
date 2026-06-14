@@ -1,19 +1,20 @@
 # Sigle-ApiGateway
 
-API Gateway del sistema SIGLE. Es el único punto de entrada del frontend, se encarga de verificar el token de Firebase y redirigir las peticiones al microservicio correspondiente.
+API Gateway del sistema SIGLE. Es el único punto de entrada del frontend: verifica el token de Firebase, redirige las peticiones al microservicio correspondiente y aplica circuit breakers con Resilience4j para tolerar fallos.
 
 ## Stack
 
 - Java 17
 - Spring Boot 3.4.0
 - Spring Cloud Gateway MVC
+- Resilience4j (Circuit Breaker)
 - Firebase Admin SDK 9.2.0
 
 ## Requisitos
 
 - Java 17+
 - Maven 3.9+
-- Los microservicios deben estar corriendo
+- Los microservicios deben estar desplegados/corriendo
 
 ## Instalación
 
@@ -33,15 +34,27 @@ docker run -p 8090:10000 sigle-api-gateway
 
 ## Rutas
 
-| Ruta | Destino |
+| Ruta | Destino | Circuit Breaker |
+|---|---|---|
+| `/api/auth/**` | CoreService | `coreCircuitBreaker` |
+| `/api/establecimientos/**` | CoreService | `coreCircuitBreaker` |
+| `/api/notificaciones/**` | CoreService | `coreCircuitBreaker` |
+| `/api/dashboard/**` | CoreService | `coreCircuitBreaker` |
+| `/api/listas/**` | ListasService | `listasCircuitBreaker` |
+| `/api/citas/**` | CitasService | `citasCircuitBreaker` |
+| `/api/pacientes/**` | PacientesService | `pacientesCircuitBreaker` |
+
+## Resilience4j — Circuit Breaker
+
+Cada ruta está protegida por un circuit breaker independiente. Configuración (por servicio):
+
+| Parámetro | Valor |
 |---|---|
-| `/api/auth/**` | CoreService :8080 |
-| `/api/establecimientos/**` | CoreService :8080 |
-| `/api/notificaciones/**` | CoreService :8080 |
-| `/api/dashboard/**` | CoreService :8080 |
-| `/api/listas/**` | ListasService :8081 |
-| `/api/citas/**` | CitasService :8082 |
-| `/api/pacientes/**` | PacientesService :8083 |
+| `sliding-window-size` | 5 |
+| `failure-rate-threshold` | 50% |
+| `wait-duration-in-open-state` | 10s |
+
+Si un microservicio falla más del 50% de las últimas 5 peticiones, el circuito se abre durante 10 segundos y las peticiones se redirigen al fallback correspondiente (`/fallback/core`, `/fallback/citas`, `/fallback/listas`, `/fallback/pacientes`), devolviendo un mensaje claro de "servicio no disponible" en vez de un error 500.
 
 ## Autenticación
 
@@ -65,9 +78,11 @@ GET http://localhost:8090/actuator/health
 src/main/java/ApiGateway/
 ├── config/
 │   ├── FirebaseConfig.java
-│   ├── GatewayConfig.java
+│   ├── GatewayConfig.java       # rutas + circuit breakers
 │   ├── SecurityConfig.java
 │   └── CorsConfig.java
+├── fallback/
+│   └── FallbackController.java  # respuestas cuando un servicio cae
 └── filter/
     └── FirebaseAuthFilter.java
 ```
