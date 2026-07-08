@@ -156,9 +156,6 @@ El token se valida contra el proyecto de Firebase configurado en `FIREBASE_SERVI
 
 CORS está abierto a cualquier origen (`allowedOrigins("*")`) para los métodos `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`.
 
-## Health
-GET http://localhost:9000/actuator/health
-
 ## Estructura
 src/main/java/ApiGateway/
 ├── config/
